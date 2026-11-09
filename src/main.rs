@@ -1,13 +1,16 @@
+use std::env;
 use std::fs;
 use std::io::{Read, Write};
 use std::net::TcpListener;
 
 fn main() {
-    let listener = TcpListener::bind("127.0.0.1:8787")
+    let port = env::var("PORT").unwrap_or_else(|_| "8787".to_string());
+    let address = format!("0.0.0.0:{}", port);
+
+    let listener = TcpListener::bind(&address)
         .expect("Erro ao iniciar servidor");
 
-    println!("Roblox Cloud PC iniciado!");
-    println!("Acesse http://127.0.0.1:8787");
+    println!("Roblox Cloud PC iniciado em {}", address);
 
     for connection in listener.incoming() {
         if let Ok(mut stream) = connection {
@@ -26,20 +29,18 @@ fn main() {
                     "application/json",
                     r#"{"status":"online","app":"Roblox Cloud PC"}"#.to_string(),
                 ),
-                "/" | "/index.html" => {
-                    match fs::read_to_string("web/index.html") {
-                        Ok(html) => ("200 OK", "text/html; charset=utf-8", html),
-                        Err(_) => (
-                            "500 Internal Server Error",
-                            "text/plain",
-                            "Painel nao encontrado".to_string(),
-                        ),
-                    }
-                }
+                "/" | "/index.html" => match fs::read_to_string("web/index.html") {
+                    Ok(html) => ("200 OK", "text/html; charset=utf-8", html),
+                    Err(_) => (
+                        "500 Internal Server Error",
+                        "text/plain",
+                        "Painel não encontrado".to_string(),
+                    ),
+                },
                 _ => (
                     "404 Not Found",
                     "text/plain",
-                    "Pagina nao encontrada".to_string(),
+                    "Página não encontrada".to_string(),
                 ),
             };
 
