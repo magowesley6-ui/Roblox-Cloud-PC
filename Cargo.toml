@@ -1,0 +1,8 @@
+[package]
+name = "roblox-cloud-pc"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "roblox-cloud-pc"
+path = "src/main.rs"
